@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: singleton-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: singleton-app
+  template:
+    metadata:
+      labels:
+        app: singleton-app
+    spec:
+      containers:
+      - name: singleton-app
+        image: your-docker-image
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+        volumeMounts:
+        - name: config-volume
+          mountPath: /config
+        env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+      volumes:
+      - name: config-volume
+        configMap:
+          name: singleton-lock
